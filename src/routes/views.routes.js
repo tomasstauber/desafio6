@@ -41,10 +41,6 @@ router.get("/login", async (req, res) => {
     res.render("login");
 });
 
-router.get("/logout", async (req, res) => {
-    res.redirect("/");
-})
-
 router.get("/register", async (req, res) => {
     res.render("register");
 });

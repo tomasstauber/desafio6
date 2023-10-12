@@ -1,15 +1,15 @@
-import {fileURLToPath} from "url";
-import {dirname} from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import bcrypt from "bcrypt";
 import passport from "passport";
 
 export const createHash = (password) => {
-    return bcrypt.hashSync(password, bcrypt.genSaltSync(10)); 
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 }
 
 export const isValidPassword = (user, password) => {
     return bcrypt.compareSync(password, user.password);
-} 
+}
 
 export const passportCall = (strategy) => {
     return async (req, res, next) => {
@@ -17,7 +17,7 @@ export const passportCall = (strategy) => {
             if (error) return error;
 
             if (!user) {
-                return res.status(401).send({error:info.messages ? info.messages : info.toString()})
+                return res.status(401).send({ error: info.messages ? info.messages : info.toString() })
             }
 
             req.user = user;
@@ -29,11 +29,11 @@ export const passportCall = (strategy) => {
 export const authorization = (role) => {
     return async (req, res, next) => {
         if (!req.user) {
-            return res.status(401).send({status:"error", message:"No autorizado!"});
+            return res.status(401).send({ status: "error", message: "No autorizado!" });
         }
 
         if (req.user.role != role) {
-            return res.status(403).send({status:"error", message:"No tienes los permisos necesarios!"});
+            return res.status(403).send({ status: "error", message: "No tienes los permisos necesarios!" });
         }
 
         next();

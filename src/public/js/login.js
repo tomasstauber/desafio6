@@ -12,6 +12,8 @@ const loginUser = async () => {
 
     if (data.status === "ok") {
         location.href = "/products";
+    } else {
+        console.log("Hubo un problema con la operación, usuario o contraseña incorrectos", error);
     }
 }
 

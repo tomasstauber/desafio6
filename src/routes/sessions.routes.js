@@ -1,5 +1,5 @@
 import express from "express";
-import { createHash, isValidPassword, passportCall, authorization } from "../utils.js";
+import { createHash, passportCall, authorization } from "../utils.js";
 import passport from "passport";
 import userManager from "../dao/UserManager.js";
 import { userModel } from "../dao/models/user.model.js";
@@ -9,7 +9,7 @@ const router = express.Router();
 const UM = new userManager();
 const PRIVATE_KEY = "S3CR3T0";
 
-router.post("/login", async (req, res) => {
+router.post("/login", passport.authenticate("login", { failureRedirect: "/faillogin" }), async (req, res) => {
     const {email, pass} = req.body;
 
     let user = await userModel.findOne({email:email});
@@ -20,7 +20,6 @@ router.post("/login", async (req, res) => {
     
     let token = jwt.sign({email:email, password:pass, role:user.role}, PRIVATE_KEY, {expiresIn:"24h"});
     res.cookie("coderCookieToken", token, {maxAge:3600*1000, httpOnly:true});
-
     return res.redirect("/products");
 });
 
@@ -33,9 +32,9 @@ router.get("/logout", async (req, res) => {
     res.redirect("/");
 });
 
-router.get("/current", passportCall("jwt"), authorization("admin"), (req, res) => {
+router.get("/current", passportCall("jwt"), authorization("user"), (req, res) => {
     res.send({status:"OK", payload:req.user});
-});
+  });
   
 router.get("/restore", async (req, res) => {
     let {user, pass} = req.query;

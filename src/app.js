@@ -12,6 +12,7 @@ import cartsRouter from "./routes/carts.router.js";
 import sessionsRouter from "./routes/sessions.routes.js";
 import viewsRouter from "./routes/views.routes.js";
 import session from "express-session";
+import cookieParser from "cookie-parser";
 import MongoStore from "connect-mongo";
 import passport from "passport";
 import initializePassport from "./config/passport.config.js";
@@ -28,9 +29,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
+app.use(cookieParser());
 initializePassport();
 app.use(passport.initialize());
-app.use(passport.session());
 
 const httpServer = app.listen(puerto, () => {
     console.log("Servidor Activo en el puerto: " + puerto);
@@ -61,7 +62,7 @@ socketServer.on("connection", (socket) => {
     socket.emit("realTimeProducts", products);
 
     socket.on("nuevoProducto", (data) => {
-        const product = { title: data.title, description: "", code: "", price: data.price, status: "", stock: 10, category: "", thumbnails: data.thumbnails };
+        const product = {title:data.title, description:"", code:"", price:data.price, status:"", stock:10, category:"", thumbnails:data.thumbnails};
         PM.addProduct(product);
         const products = PM.getProducts();
         socket.emit("realTimeProducts", products);

@@ -11,30 +11,40 @@ import productsRouter from "./routes/products.router.js";
 import cartsRouter from "./routes/carts.router.js";
 import sessionsRouter from "./routes/sessions.routes.js";
 import viewsRouter from "./routes/views.routes.js";
-import session from "express-session";
 import cookieParser from "cookie-parser";
-import MongoStore from "connect-mongo";
 import passport from "passport";
-import initializePassport from "./config/passport.config.js";
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import initializePassport from "./middlewares/passport.js";
+import initializeGitHubPassport from "./middlewares/github.js";
+import { MONGODB_CONNECT, PORT, SECRET_SESSIONS} from "./config/config.js"
 
 const app = express();
-const puerto = 8080;
+
 app.use(session({
     store: MongoStore.create({
-        mongoUrl: "mongodb+srv://tomastauber:ZWx5dcTbW71K5hk4@tomascluster.tkfwypg.mongodb.net/e-commerce?retryWrites=true&w=majority",
+        mongoUrl: MONGODB_CONNECT,
         mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
         ttl: 10000
     }),
-    secret: "S3cr3t0",
+    secret: SECRET_SESSIONS,
     resave: false,
     saveUninitialized: false
 }));
+
+const dbConection = mongoose.connect(MONGODB_CONNECT,({
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }))
+  
+
 app.use(cookieParser());
 initializePassport();
+initializeGitHubPassport();
 app.use(passport.initialize());
 
-const httpServer = app.listen(puerto, () => {
-    console.log("Servidor Activo en el puerto: " + puerto);
+const httpServer = app.listen(PORT, () => {
+    console.log("Servidor Activo en el puerto: " + PORT);
 });
 const socketServer = new Server(httpServer);
 const PM = new ProductManager();
@@ -52,8 +62,6 @@ app.use("/api/products/", productsRouter);
 app.use("/api/carts/", cartsRouter);
 app.use("/api/sessions/", sessionsRouter);
 app.use("/", viewsRouter);
-
-mongoose.connect("mongodb+srv://tomastauber:ZWx5dcTbW71K5hk4@tomascluster.tkfwypg.mongodb.net/e-commerce?retryWrites=true&w=majority");
 
 socketServer.on("connection", (socket) => {
     console.log("Nueva Conexión!");

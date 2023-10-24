@@ -1,33 +1,39 @@
-import { userModel } from "./models/user.model.js";
+import { isValidPassword, createHash } from "../middlewares/bcrypt.js";
+import userModel from "../dao/models/user.model.js";
 
 class UserManager {
-    async addUser(user) {
+    async addUser({first_name, last_name, email, age, password, role}) {
         try {
-            if (user.email == "adminCoder@coder.com") {
-                user.role = "admin";
+            const userExists = await userModel.findOne({email});
+            if (userExists) {
+                console.log("Este usuario ya se encuentra registrado!");
+                return null;
             }
 
-            await userModel.create(user);
-            console.log("Usuario creado correctamente!");
-
-            return true;
+            const hash = createHash(password);
+            const user = await userModel.create({
+                first_name, last_name, email, age, password: hash, role
+            });
+            console.log("Usuario creado correctamente!", user);
+            return user;
         } catch (error) {
-            return false;
+            console.log("Ha ocurrido un error al crear el usuario!", error);
+            return null;
         }
     }
 
-    async login(user) {
+    async login(user, pass) {
         try {
             const userLogged = await userModel.findOne({ email: user }) || null;
 
-            if (userLogged) {
-                console.log("Usuario logueado correctamente!");
+            if (userLogged && isValidPassword(userLogged, pass)) {
+                const role = userLogged.email === "adminCoder@coder.com" ? "admin" : "user";
                 return userLogged;
             }
-
-            return false;
+            return null;
         } catch (error) {
-            return false;
+            console.log("Ha ocurrido un error al iniciar sesión!", error)
+            return null;
         }
     }
 
@@ -37,7 +43,7 @@ class UserManager {
 
             if (userLogged) {
                 console.log("Contraseña recuperada correctamente!");
-                return userLogged;
+                return ({status:200, message: "Contraseña recuperada correctamente!", redirect:"/login"});
             }
 
             return false;

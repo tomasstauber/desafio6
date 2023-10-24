@@ -7,13 +7,30 @@ const registerUser = async () => {
 
     const user = { first_name, last_name, email, age, password };
 
-    const response = await fetch("/api/sessions/register", {
+    try {
+        const response = await fetch("/api/sessions/register", {
+          method: "POST",
+          headers: { "Content-type": "application/json; charset=UTF-8" },
+          body: JSON.stringify(user),
+        });
+        if (!response.ok) {
+            console.error("Ha ocurrido un error al registrar el usuario!", await response.text());
+        } else {
+            const data = await response.json();
+            if (data.status === "success" && data.redirect) {
+                window.location.href = data.redirect;
+            }
+        }
+      } catch (error) {
+        console.error("Ha ocurrido un error al registrar el usuario!", error);
+      }
+    /* const response = await fetch("/api/sessions/register", {
         method: "POST",
         headers: { "Content-type": "application/json; charset=UTF-8" },
         body: JSON.stringify(user),
     });
     const data = await response.json();
-    console.log(data);
+    console.log(data); */
 }
 
 document.getElementById("btnRegister").onclick = registerUser;

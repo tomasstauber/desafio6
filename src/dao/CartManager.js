@@ -1,20 +1,15 @@
 import { cartModel } from "./models/cart.model.js";
+import mongoose from "mongoose";
 
 class cartManager {
 
     async newCart() {
-        await cartModel.create({ products: [] });
-        console.log("Carrito creado correctamente!");
-        return true;
+        let cart = await cartModel.create({ products: [] });
+        return { status: "Ok", message: "Carrito creado correctamente!", id: cart._id };
     }
 
     async getCart(id) {
-        if (this.validateId(id)) {
-            return await cartModel.findOne({ _id: id }).lean() || null;
-        } else {
-            console.log("No se encontró nigún carrito con este Id!");
-            return null;
-        }
+        return (await cartModel.findOne({ _id: id }).lean()) || null;
     }
 
     async getCarts() {
@@ -22,16 +17,26 @@ class cartManager {
     }
     async addToCart(cid, pid) {
         try {
-            if (await cartModel.exists({ _id: cid, products: { $elemMatch: { product: pid } } })) {
-                await cartModel.updateOne({ _id: cid, products: { $elemMatch: { product: pid } } }, { $inc: { "products.$.quantity": 1 } }, { new: true, upsert: true });
+            if (mongoose.Types.ObjectId.isValid(cid) && mongoose.Types.ObjectId.isValid(pid)) {
+                const result = await cartModel.updateOne(
+                    { _id: cid, "products.product": pid },
+                    { $inc: { "products.$.quantity": 1 } }
+                );
+                console.log(result);
+                if (result.matchedCount === 0) {
+                    const result = await cartModel.updateOne(
+                        { _id: cid },
+                        { $push: { products: { product: pid, quantity: 1 } } }
+                    );
+                    console.log(result);
+                }
+                return { status: "Ok", message: "Producto agregado correctamente!" };
             } else {
-                await cartModel.updateOne({ _id: cid }, { $push: { products: { "product": pid, "quantity": 1 } } }, { new: true, upsert: true });
+                return { status: "Error", message: "Ningún producto coincide con ese Id!" };
             }
-            console.log("Producto agregado al carrito!");
-            return true;
         } catch (error) {
-            console.log("Ningún producto coincide con ese Id!");
-            return false;
+            console.log(error);
+            return { status: "Error", message: "Ha ocurrido un error al agregar el producto!" };
         }
     }
 
@@ -41,33 +46,30 @@ class cartManager {
                 const cart = await this.getCart(cid);
                 const product = cart.products.find(item => item.product === pid);
                 product.quantity = quantity;
-
                 await cartModel.updateOne({ _id: cid }, { products: cart.products });
                 console.log("Producto actualizado correctamente!");
-
                 return true;
             } else {
                 console.log("Ningún producto coincide con ese Id!");
-
                 return false;
             }
         } catch (error) {
-            return false
+            return { status: "Error", message: "Ha ocurrido un error al agregar al carrtio!" };
         }
     }
 
-    async updateProducts(cid, products) {
-        try {
-            await cartModel.updateOne({ _id: cid }, { products: products }, { new: true, upsert: true });
-            console.log("Producto actualizado correctamente!");
-
-            return true;
-        } catch (error) {
-            console.log("No se encontró ningún producto con ese Id!");
-
-            return false;
-        }
-    }
+    /*     async updateProducts(cid, products) {
+            try {
+                await cartModel.updateOne({ _id: cid }, { products: products }, { new: true, upsert: true });
+                console.log("Producto actualizado correctamente!");
+    
+                return true;
+            } catch (error) {
+                console.log("No se encontró ningún producto con ese Id!");
+    
+                return false;
+            }
+        } */
 
     async deleteProductCart(cid, pid) {
         try {

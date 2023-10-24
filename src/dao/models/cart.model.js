@@ -1,15 +1,18 @@
 import mongoose from "mongoose";
 
 const cartSchema = new mongoose.Schema({
-    products: [
-        {
-            product: {
-                type: String,
-                ref: 'products'
+    id: Number,
+    products: {
+        type: [
+            {
+                product: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "products"
+                },
+                quantity: { type: Number, default: 0 }
             },
-            quantity: Number,
-        }
-    ]
+        ],
+    },
 });
 
 cartSchema.pre("findOne", function () {

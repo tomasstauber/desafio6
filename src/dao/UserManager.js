@@ -2,9 +2,9 @@ import { isValidPassword, createHash } from "../middlewares/bcrypt.js";
 import userModel from "../dao/models/user.model.js";
 
 class UserManager {
-    async addUser({first_name, last_name, email, age, password, role}) {
+    async addUser({ first_name, last_name, email, age, password, role }) {
         try {
-            const userExists = await userModel.findOne({email});
+            const userExists = await userModel.findOne({ email });
             if (userExists) {
                 console.log("Este usuario ya se encuentra registrado!");
                 return null;
@@ -24,11 +24,12 @@ class UserManager {
 
     async login(user, pass) {
         try {
-            const userLogged = await userModel.findOne({ email: user }) || null;
-
-            if (userLogged && isValidPassword(userLogged, pass)) {
-                const role = userLogged.email === "adminCoder@coder.com" ? "admin" : "user";
-                return userLogged;
+            console.log("Usuario recibido en UsMg:", user);
+            console.log("Contraseña recibida en UsMg:", pass);
+            const usuarioLogueado = await userModel.findOne({ email: user });
+            if (usuarioLogueado && isValidPassword(usuarioLogueado, pass)) {
+                const role = usuarioLogueado.email === "adminCoder@coder.com" ? "admin" : "user";
+                return usuarioLogueado;
             }
             return null;
         } catch (error) {
@@ -43,7 +44,7 @@ class UserManager {
 
             if (userLogged) {
                 console.log("Contraseña recuperada correctamente!");
-                return ({status:200, message: "Contraseña recuperada correctamente!", redirect:"/login"});
+                return ({ status: 200, message: "Contraseña recuperada correctamente!", redirect: "/login" });
             }
 
             return false;

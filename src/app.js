@@ -21,6 +21,8 @@ import { MONGODB_CONNECT, PORT, SECRET_SESSIONS} from "./config/config.js"
 
 const app = express();
 
+//Para iniciar el proyecto: node ./src/app.js
+
 app.use(session({
     store: MongoStore.create({
         mongoUrl: MONGODB_CONNECT,

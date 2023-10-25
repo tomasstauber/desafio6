@@ -5,5 +5,6 @@ export function createHash(password) {
 }
 
 export const isValidPassword = (user, password) => {
+  console.log("Contraseña recibida en iVP:", password)
   return bcrypt.compareSync(password, user.password);
 };

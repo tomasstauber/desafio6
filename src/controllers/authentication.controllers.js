@@ -7,6 +7,8 @@ class authenticationController {
 
     async login(req, res) {
         const { user, pass } = req.body;
+        console.log("Usuario recibido en authController:", user);
+        console.log("Contraseña recibida en authController:", pass);
         const userLogged = await this.authenticationServices.login(user, pass);
         if (!userLogged) {
             return res.status(401).json({ status: "Error", message: "Credenciales inválidas" });

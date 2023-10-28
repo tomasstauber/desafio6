@@ -6,10 +6,8 @@ class authenticationController {
     }
 
     async login(req, res) {
-        const { user, pass } = req.body;
-        console.log("Usuario recibido en authController:", user);
-        console.log("Contraseña recibida en authController:", pass);
-        const userLogged = await this.authenticationServices.login(user, pass);
+        const { email, password } = req.body;
+        const userLogged = await this.authenticationServices.login(email, password);
         if (!userLogged) {
             return res.status(401).json({ status: "Error", message: "Credenciales inválidas" });
         }
@@ -19,8 +17,8 @@ class authenticationController {
             first_name: userLogged.user.first_name,
             last_name: userLogged.user.last_name,
             role: userLogged.user.role
-        }
-        return res.status(200).json({ status: "Ok", user: userLogged.user, redirect: "/products" });
+        }   
+        return res.redirect("/products")
     };
 
     async githubCallback(req, res) {
@@ -44,10 +42,12 @@ class authenticationController {
             if (error) {
                 return res.redirect("/faillogin");
             }
-            return res.redirect("/login")
-        })
+            if (!req.session) {
+                res.clearCookie("coderCookieToken");
+                return res.redirect("/login");
+            }
+        });
     };
-
 }
 
 export default authenticationController;

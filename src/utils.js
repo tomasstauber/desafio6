@@ -19,7 +19,6 @@ export const passportCall = (strategy) => {
             if (!user) {
                 return res.status(401).send({ error: info.messages ? info.messages : info.toString() })
             }
-
             req.user = user;
             next();
         })(req, res, next);
@@ -31,11 +30,9 @@ export const authorization = (role) => {
         if (!req.user) {
             return res.status(401).send({ status: "error", message: "No autorizado!" });
         }
-
         if (req.user.role != role) {
             return res.status(403).send({ status: "error", message: "No tienes los permisos necesarios!" });
         }
-
         next();
     }
 }

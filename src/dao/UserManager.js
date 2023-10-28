@@ -24,8 +24,6 @@ class UserManager {
 
     async login(user, pass) {
         try {
-            console.log("Usuario recibido en UsMg:", user);
-            console.log("Contraseña recibida en UsMg:", pass);
             const usuarioLogueado = await userModel.findOne({ email: user });
             if (usuarioLogueado && isValidPassword(usuarioLogueado, pass)) {
                 const role = usuarioLogueado.email === "adminCoder@coder.com" ? "admin" : "user";

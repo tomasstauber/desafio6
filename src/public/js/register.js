@@ -24,13 +24,6 @@ const registerUser = async () => {
       } catch (error) {
         console.error("Ha ocurrido un error al registrar el usuario!", error);
       }
-    /* const response = await fetch("/api/sessions/register", {
-        method: "POST",
-        headers: { "Content-type": "application/json; charset=UTF-8" },
-        body: JSON.stringify(user),
-    });
-    const data = await response.json();
-    console.log(data); */
 }
 
 document.getElementById("btnRegister").onclick = registerUser;

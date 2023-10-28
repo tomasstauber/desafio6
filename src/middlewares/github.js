@@ -9,11 +9,11 @@ const initializeGitHubPassport = () => {
         clientID: CLIENT_ID_GITHUB,
         clientSecret: CLIENT_SECRET_GITHUB,
         callbackURL: "http://localhost:8080/api/sessions/githubcallback"
-    }, async (accessToken, refreshToken, user, done) => {
+    }, async (accessToken, refreshToken, githubUser, done) => {
         try {
             const authService = new authenticationServices();
-            console.log("Perfil: ", JSON.stringify(user, null, 2));
-            const user = await authService.githubCallback(user);
+            console.log("Perfil: ", JSON.stringify(githubUser, null, 2));
+            const user = await authService.githubCallback(githubUser);
 
             if (user) {
                 return done(null, user);

@@ -20,7 +20,7 @@ router.get("/restore", usersController.restorePassword.bind(usersController));
 
 router.get("/current", passportCall("jwt"), authorization("user"), (req, res) => { usersController.current(req, res) });
 
-router.get("/github", passport.authenticate("github", { scope: ["user:email"] }), async (req, res) => {});
+router.get("/github", passport.authenticate("github", { scope: ["user:email"] }), async (req, res) => { });
 
 router.get("/githubcallback", passport.authenticate("github", { failureRedirect: "/login" }), async (req, res) => {
     req.session.user = req.user;

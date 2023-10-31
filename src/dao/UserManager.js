@@ -39,12 +39,10 @@ class UserManager {
     async restorePassword(user, pass) {
         try {
             const userLogged = await userModel.updateOne({ email: user }, { password: pass }) || null;
-
             if (userLogged) {
                 console.log("Contraseña recuperada correctamente!");
                 return ({ status: 200, message: "Contraseña recuperada correctamente!", redirect: "/login" });
             }
-
             return false;
         } catch (error) {
             return false;

@@ -20,7 +20,6 @@ class userController {
             const newPassword = await this.userServices.restorePassword(user, createHash(pass));
             if (newPassword) {
                 return res.send({ status: "Ok", message: "Contraseña recuperada correctamente!" });
-                location.href = "/login"
             } else {
                 return res.status(401).send({ status: "Error", message: "Ha ocurrido un error al actualizar la contraseña!" });
             }

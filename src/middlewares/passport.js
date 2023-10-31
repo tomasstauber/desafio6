@@ -52,19 +52,13 @@ const initializePassport = () => {
             }
         }));
 
-    passport.use("jwt", new JWTStrategy({ jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]), secretOrKey: JWT_KEY, },
-        async (jwt_payload, done) => {
+        passport.use("jwt", new JWTStrategy({jwtFromRequest:ExtractJWT.fromExtractors([cookieExtractor]), secretOrKey: JWT_KEY}, async(jwt_payload, done) => {
             try {
-                const user = await userModel.findOne({ email: jwt_payload.email });
-                if (!user) {
-                    return done(null, false, { message: "Ningún usuario coincide con estos datos!" })
-                }
-                return done(null, user);
+                return done(null, jwt_payload);
             } catch (error) {
                 return done(error);
             }
         }));
-
 }
 
 passport.serializeUser((user, done) => {

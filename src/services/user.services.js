@@ -21,11 +21,8 @@ class userServices {
         }
     }
 
-    async restorePassword (user, pass) {
-        const password = await this.UserManager.restorePassword(user, pass);
-        if(password) {
-            return {status: "Ok", password, redirect: "/login"};
-        }
+    async restorePassword(user, hashedPassword) {
+        return await this.userManager.restorePassword(user, hashedPassword);
     }
 }
 

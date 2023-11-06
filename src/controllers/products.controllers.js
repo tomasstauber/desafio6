@@ -21,15 +21,15 @@ class productsController {
             const product = await this.productsServices.getProductById(pid);
             if (product) {
                 res.json(product);
-                return true;
+                return;
             } else {
                 res.status(404).send({ status: "Error", message: "Ningún producto coincide con ese Id!" });
-                return false;
+                return;
             }
         } catch (error) {
             res.status(500).send({ status: "Error", message: "Ha ocurrido un error al obtener el producto!" });
             console.log(error);
-            return false;
+            return;
         }
     }
 
@@ -75,19 +75,19 @@ class productsController {
         try {
             const addProduct = await this.productsServices.addProduct({ title, description, code, price, status, stock, category, thumbnails });
             if (addProduct && addProduct._id) {
-                console.log("Producto agregado correctamente!");
+                console.log("Producto agregado correctamente!", addProduct);
                 res.send({ status: "Ok", message: "Producto agregado correctamente!" });
                 socketServer.emit("addProduct", { _id: addProduct._id, title, description, stock, thumbnails, category, price, code });
-                return true;
+                return;
             } else {
                 console.log("Ha ocurrido un error al agregar el producto!");
                 res.status(500).send({ status: "Error", message: "Ha ocurrido un error al agregar el producto!" });
-                return false;
+                return;
             }
         } catch (error) {
             console.log("Ha ocurrido un error al agregar el producto!", error);
             res.status(500).send({ status: "Error", message: "Internal Server Error" });
-            return null;
+            return;
         }
     }
 
@@ -110,7 +110,7 @@ class productsController {
 
     async updateProduct(req, res) {
         try {
-            let { title, description, code, price, status, stock, category, thumbnails } = req.body;
+            const { title, description, code, price, status, stock, category, thumbnails } = req.body;
             const pid = req.params.pid;
             const updateProduct = await this.productsServices.updateProduct(pid, {
                 title, description, code, price, status, stock, category, thumbnails

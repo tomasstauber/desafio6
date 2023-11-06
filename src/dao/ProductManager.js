@@ -96,6 +96,10 @@ class ProductManager {
             return false;
         }
     };
+
+    validateId(id) {
+        return id.length === 24 ? true : false;
+    };
 }
 
 export default ProductManager;

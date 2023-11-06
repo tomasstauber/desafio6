@@ -17,16 +17,20 @@ const initializePassport = () => {
             try {
                 let user = await userModel.findOne({ email: username });
                 if (user) {
-                    console.log("Ya existe un usuario registrado con este email!");
+                    console.log("El usuario " + email + " ya se encuentra registrado!");
                     return done(null, false);
                 }
                 user = { first_name, last_name, email, age, password: createHash(password), role };
-                if (user.email == "adminCoder@coder.com" && password === "adminCod3r123") {
+                console.log("Rol antes de la asignación:", user.role);
+                if (user.email == process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+                    console.log("Asignando role de admin");
                     user.role = "admin";
                 } else {
+                    console.log("Asignando role de usuario");
                     user.role = "user";
                 }
                 let result = await userModel.create(user);
+                console.log("Usuario creado con éxito:", result);
                 if (result) {
                     return done(null, result);
                 }
@@ -38,6 +42,7 @@ const initializePassport = () => {
 
     passport.use("login", new LocalStrategy({ usernameField: "email", passwordField: "password" },
         async (username, password, done) => {
+            console.log("[Auth] Trying to authenticate user:", username);
             try {
                 let user = await userModel.findOne({ email: username });
                 if (!user) {
@@ -52,13 +57,18 @@ const initializePassport = () => {
             }
         }));
 
-        passport.use("jwt", new JWTStrategy({jwtFromRequest:ExtractJWT.fromExtractors([cookieExtractor]), secretOrKey: JWT_KEY}, async(jwt_payload, done) => {
-            try {
-                return done(null, jwt_payload);
-            } catch (error) {
-                return done(error);
+    passport.use("jwt", new JWTStrategy({ jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]), secretOrKey: JWT_KEY }, async (jwt_payload, done) => {
+        console.log("JWT Payload:", jwt_payload);
+        try {
+            const user = await userModel.findOne({ email: jwt_payload.email });
+            if (!user) {
+                return done(null, false, { message: "Usuario no encontrado." });
             }
-        }));
+            return done(null, user);
+        } catch (error) {
+            return done(error);
+        }
+    }));
 }
 
 passport.serializeUser((user, done) => {

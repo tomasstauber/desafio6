@@ -17,8 +17,9 @@ class authenticationController {
             first_name: userLogged.user.first_name,
             last_name: userLogged.user.last_name,
             role: userLogged.user.role
-        }   
-        return res.redirect("/products")
+        }
+        res.cookie('CookieToken', userLogged.token, { httpOnly: true, secure: false });
+        return res.redirect("/products");
     };
 
     async githubCallback(req, res) {

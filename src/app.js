@@ -10,6 +10,8 @@ import ChatManager from "./dao/ChatManager.js";
 import productsRouter from "./routes/products.router.js";
 import cartsRouter from "./routes/carts.router.js";
 import sessionsRouter from "./routes/sessions.routes.js";
+import smsRouter from "./routes/sms.router.js";
+import emailRouter from "./routes/email.router.js";
 import viewsRouter from "./routes/views.routes.js";
 import cookieParser from "cookie-parser";
 import passport from "passport";
@@ -17,7 +19,7 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import initializePassport from "./middlewares/passport.js";
 import initializeGitHubPassport from "./middlewares/github.js";
-import { MONGODB_CONNECT, PORT, SECRET_SESSIONS} from "./config/config.js"
+import { MONGODB_CONNECT, PORT, SECRET_SESSIONS } from "./config/config.js"
 
 const app = express();
 
@@ -34,11 +36,11 @@ app.use(session({
     saveUninitialized: false
 }));
 
-const dbConection = mongoose.connect(MONGODB_CONNECT,({
+const dbConection = mongoose.connect(MONGODB_CONNECT, ({
     useNewUrlParser: true,
     useUnifiedTopology: true
-  }))
-  
+}))
+
 
 app.use(cookieParser());
 initializePassport();
@@ -58,11 +60,13 @@ app.engine('handlebars', expressHandlebars.engine({
 }));
 app.set("view engine", "handlebars");
 app.use(express.json());
-app.use(express.urlencoded({extended:true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
 app.use("/api/products/", productsRouter);
 app.use("/api/carts/", cartsRouter);
 app.use("/api/sessions/", sessionsRouter);
+app.use('/email', emailRouter);
+app.use('/sms', smsRouter);
 app.use("/", viewsRouter);
 
 socketServer.on("connection", (socket) => {
@@ -72,7 +76,7 @@ socketServer.on("connection", (socket) => {
     socket.emit("realTimeProducts", products);
 
     socket.on("nuevoProducto", (data) => {
-        const product = {title:data.title, description:"", code:"", price:data.price, status:"", stock:10, category:"", thumbnails:data.thumbnails};
+        const product = { title: data.title, description:"", code:"", price: data.price, status:"", stock:10, category:"", thumbnails:data.thumbnails };
         PM.addProduct(product);
         const products = PM.getProducts();
         socket.emit("realTimeProducts", products);

@@ -32,6 +32,15 @@ class cartServices {
         return await this.cartManager.updateQuantityProductCart(cis, pid, quantity);
     }
 
+    async updateCart(cartId, products) {
+        const result = await this.cartManager.updateProducts(cartId, products);
+        if (result) {
+            return { status: "ok", message: "El carrito se actualizó correctamente" };
+        } else {
+            throw new Error("Error: No se pudo actualizar el carrito");
+        }
+    }
+
     async deleteProductCart(cis, pid) {
         const result = await this.cartManager.deleteProductCart(cid, pid);
         if (result) {

@@ -40,25 +40,44 @@ class cartManager {
         }
     }
 
-    async updateQuantityProductCart(cid, pid, quantity) {
+    async updateQuantityProductFromCart(cid, pid, quantity) {
         try {
             if (this.validateId(cid)) {
                 const cart = await this.getCart(cid);
-                const product = cart.products.find(item => item.product === pid);
-                product.quantity = quantity;
-                await cartModel.updateOne({ _id: cid }, { products: cart.products });
-                console.log("Producto actualizado correctamente!");
-                return true;
+                if (!cart) {
+                    console.log("Cart not found!");
+                    return false;
+                }
+
+                console.log('PID:', pid);
+                console.log('Cart products:', cart.products.map(item => item.product._id ? item.product._id.toString() : item.product.toString()));
+
+                const product = cart.products.find((item) =>
+                    (item.product._id ? item.product._id.toString() : item.product.toString()) === pid.toString()
+                );
+
+                if (product) {
+                    product.quantity = quantity;
+
+                    await cartModel.updateOne({ _id: cid }, { products: cart.products });
+                    console.log("Product updated!");
+
+                    return true;
+                } else {
+                    console.log("Product not found in cart");
+                    return false;
+                }
             } else {
-                console.log("Ningún producto coincide con ese Id!");
+                console.log("Invalid cart ID!");
                 return false;
             }
         } catch (error) {
-            return { status: "Error", message: "Ha ocurrido un error al agregar al carrtio!" };
+            console.error("Error while updating product:", error);
+            return false;
         }
     }
 
-    /*     async updateProducts(cid, products) {
+        async updateProducts(cid, products) {
             try {
                 await cartModel.updateOne({ _id: cid }, { products: products }, { new: true, upsert: true });
                 console.log("Producto actualizado correctamente!");
@@ -69,7 +88,7 @@ class cartManager {
     
                 return false;
             }
-        } */
+        }
 
     async deleteProductCart(cid, pid) {
         try {
@@ -109,7 +128,7 @@ class cartManager {
     }
 
     validateId(id) {
-        return id.length === 24 ? true : false;
+        return mongoose.Types.ObjectId.isValid(id);
     }
 }
 

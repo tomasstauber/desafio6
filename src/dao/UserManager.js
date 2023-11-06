@@ -11,8 +11,9 @@ class UserManager {
             }
 
             const hash = createHash(password);
+            const cart = await cartModel.create({ products: [] });
             const user = await userModel.create({
-                first_name, last_name, email, age, password: hash, role
+                first_name, last_name, email, age, password: hash, cart: cart._id, role
             });
             console.log("Usuario creado correctamente!", user);
             return user;
@@ -40,8 +41,8 @@ class UserManager {
         try {
             const userLogged = await userModel.updateOne({ email: user }, { password: pass }) || null;
             if (userLogged) {
-                console.log("Contraseña recuperada correctamente!");
-                return ({ status: 200, message: "Contraseña recuperada correctamente!", redirect: "/login" });
+                console.log("Contraseña restablecida.");
+                return userLogged;
             }
             return false;
         } catch (error) {
